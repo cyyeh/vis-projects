@@ -1,0 +1,89 @@
+<!--
+@license
+Copyright 2022 The TensorFlow Authors. All Rights Reserved.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>
+          <!-- This header is intentionally left blank for the color column -->
+        </th>
+        <ng-container *ngFor="let header of headers;">
+          <th (click)="headerClicked(header)">
+            <div [ngSwitch]="header" class="cell">
+              <!-- order icon -->
+              <mat-icon
+                *ngSwitchCase="ColumnHeaders.VALUE_CHANGE"
+                svgIcon="change_history_24px"
+              ></mat-icon>
+              <mat-icon
+                *ngSwitchCase="ColumnHeaders.PERCENTAGE_CHANGE"
+                svgIcon="change_history_24px"
+              ></mat-icon>
+              <div *ngSwitchDefault class="extra-right-padding"></div>
+
+              <span>{{ getHeaderTextColumn(header) }}</span>
+
+              <div
+                class="sorting-icon-container"
+                [ngClass]="header === sortingInfo.header ? 'show' : 'show-on-hover'"
+              >
+                <mat-icon
+                  *ngIf="sortingInfo.order === SortingOrder.ASCENDING || header !== sortingInfo.header"
+                  svgIcon="arrow_upward_24px"
+                ></mat-icon>
+                <mat-icon
+                  *ngIf="sortingInfo.order === SortingOrder.DESCENDING && header === sortingInfo.header"
+                  svgIcon="arrow_downward_24px"
+                ></mat-icon>
+              </div>
+            </div>
+          </th>
+        </ng-container>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let runData of data;">
+        <tr class="row">
+          <td class="row-circle">
+            <span [style.backgroundColor]="runData.COLOR"></span>
+          </td>
+          <ng-container *ngFor="let header of headers;">
+            <td [ngSwitch]="header">
+              <div *ngSwitchCase="ColumnHeaders.VALUE_CHANGE" class="cell">
+                <ng-container
+                  *ngTemplateOutlet="arrow; context: {$implicit:runData.VALUE_CHANGE}"
+                ></ng-container>
+                {{ getFormattedDataForColumn(header, runData) }}
+              </div>
+              <div *ngSwitchCase="ColumnHeaders.PERCENTAGE_CHANGE" class="cell">
+                <ng-container
+                  *ngTemplateOutlet="arrow; context: {$implicit:runData.PERCENTAGE_CHANGE}"
+                ></ng-container>
+                {{ getFormattedDataForColumn(header, runData) }}
+              </div>
+              <div *ngSwitchDefault class="cell extra-right-padding">
+                {{ getFormattedDataForColumn(header, runData) }}
+              </div>
+            </td>
+          </ng-container>
+        </tr>
+      </ng-container>
+    </tbody>
+  </table>
+</div>
+<ng-template #arrow let-value>
+  <mat-icon *ngIf="value >= 0" svgIcon="arrow_upward_24px"></mat-icon>
+  <mat-icon *ngIf="value < 0" svgIcon="arrow_downward_24px"></mat-icon>
+</ng-template>
